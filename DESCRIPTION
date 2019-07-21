@@ -1,0 +1,40 @@
+Package: Robocov
+Type: Package
+Encoding: UTF-8
+Title: Robust Estimation of covariance matrix and conditional graphs
+Version: 0.1-6
+Date: 2019-07-21
+Author: c(person("Kushal","Dey",role=c("aut","cre"), email="kdey@hsph.harvard.edu"),
+          person("Rahul","Mazumder",role="aut"))
+Maintainer: Kushal Dey <kdey@hsph.harvard.edu>
+Description: Performs robust estimation of covariance/correlation matrix and 
+    partial correlation matrix (conditional graphs) for data matrix with missing at
+    random entries. The missing-ness in data manifests in limiting the variation of 
+    the Fisher Z-scores which is leveraged to perform estimation of the correlation and 
+    conditional graphs. 
+Depends:
+    R (>= 3.2),
+Imports:
+    ashr,
+    glmnet,
+    SQUAREM,
+    CVXR,
+    reshape2,
+    methods,
+    Matrix,
+    gridExtra,
+    corrplot,
+    corpcor,
+    MASS
+Suggests:
+    knitr,
+    glasso,
+    roxygen2,
+    devtools
+URL: https://github.com/kkdey/Robocov
+BugReports: http://github.com/kkdey/Robocov/issues
+License: GPL (>= 2)
+NeedsCompilation: no
+LazyData: true
+VignetteBuilder: knitr
+RoxygenNote: 6.1.1
