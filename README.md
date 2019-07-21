@@ -1,5 +1,6 @@
 # Robocov
+Robust estimation of covariance and precision matrices
 
-A [workflowr][] project.
+Authors: Kushal K. Dey and Rahul Mazumder
+Contact: kdey@hsph.harvard.edu
 
-[workflowr]: https://github.com/jdblischak/workflowr
