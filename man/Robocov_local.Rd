@@ -4,12 +4,16 @@
 \alias{Robocov_local}
 \title{Robust correlation estimation using local approximation to Fisher Z-scores}
 \usage{
-Robocov_local(data_with_missing, alpha = 1)
+Robocov_local(data_with_missing, alpha = 1, loss = c("lasso", "ridge",
+  "elasticnet"))
 }
 \arguments{
 \item{data_with_missing}{Samples by features data matrix. May contain missing entries (NA) values.}
 
 \item{alpha}{The tuning parameter for the L-1 scaling of the correlation values.}
+
+\item{loss}{Specify if we minimize L-1 (`lasso`), L-2 (`ridge`) or elastic-net (`elasticnet`)
+loss functions.}
 }
 \description{
 A robust estimation of correlation matrix for data with missing entries using

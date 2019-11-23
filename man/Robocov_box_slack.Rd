@@ -4,12 +4,16 @@
 \alias{Robocov_box_slack}
 \title{Robust correlation estimation using box constraints on Fisher Z-scores  with slack variables}
 \usage{
-Robocov_box_slack(data_with_missing, alpha = 1)
+Robocov_box_slack(data_with_missing, alpha = 1, loss = c("lasso",
+  "ridge", "elasticnet"))
 }
 \arguments{
 \item{data_with_missing}{Samples by features data matrix. May contain missing entries (NA) values.}
 
 \item{alpha}{The tuning parameter for the L-1 shrinkage of the slack variables.}
+
+\item{loss}{Specify if we minimize L-1 (`lasso`), L-2 (`ridge`) or elastic-net (`elasticnet`)
+loss functions.}
 }
 \description{
 A robust estimation of correlation matrix for data with missing entries using box

@@ -4,10 +4,14 @@
 \alias{Robocov_box}
 \title{Robust correlation estimation using box constraints on Fisher Z-scores}
 \usage{
-Robocov_box(data_with_missing)
+Robocov_box(data_with_missing, loss = c("lasso", "ridge", "elasticnet"))
 }
 \arguments{
-\item{data_with_missing}{Samples by features data matrix. May contain missing entries (NA) values.}
+\item{data_with_missing}{Samples by features data matrix. May contain missing entries
+(NA) values.}
+
+\item{loss}{Specify if we minimize L-1 (`lasso`), L-2 (`ridge`) or elastic-net (`elasticnet`)
+loss functions.}
 }
 \description{
 A robust estimation of correlation matrix for data with missing entries using box
