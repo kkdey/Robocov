@@ -4,6 +4,8 @@
 #'
 #' @param data_with_missing Samples by features data matrix. May contain missing entries (NA) values.
 #' @param alpha The tuning parameter for the L-1 scaling of the correlation values.
+#' @param loss Specify if we minimize L-1 (`lasso`), L-2 (`ridge`) or elastic-net (`elasticnet`)
+#'             loss functions.
 #'
 #' @examples
 #' data("sample_by_feature_data")
@@ -22,7 +24,9 @@
 #' @export
 
 
-Robocov_local <- function(data_with_missing, alpha= 1){
+Robocov_local <- function(data_with_missing,
+                          alpha= 1,
+                          loss = c("lasso", "ridge", "elasticnet")){
 
   library(CVXR)
   ##################  Building matrix of common samples for pairwise comparisons  ####################
@@ -56,7 +60,17 @@ Robocov_local <- function(data_with_missing, alpha= 1){
   diag(inverse_sd_cor) = 0
 
   R <- Semidef(dim(pairwise_cor)[1])
-  obj <- Minimize(alpha*p_norm(R, 1) + p_norm(mul_elemwise(inverse_sd_cor, square(R - estimate_cor)), 1))
+
+  if(loss == "lasso"){
+    obj <- Minimize(alpha*p_norm(R, 1) + p_norm(mul_elemwise(inverse_sd_cor, square(R - estimate_cor)), 1))
+  }else if (loss == "ridge"){
+    obj <- Minimize(alpha*p_norm(R, 2) + p_norm(mul_elemwise(inverse_sd_cor, square(R - estimate_cor)), 1))
+  }else if (loss == "elasticnet"){
+    obj <- Minimize(alpha*0.5*p_norm(R, 1) + alpha*0.5*p_norm(R, 2) + p_norm(mul_elemwise(inverse_sd_cor, square(R - estimate_cor)), 1))
+  }else{
+    stop("loss must be one of lasso, ridge or elasticnet.")
+  }
+
   constraints = list(diag(R) == 1)
   prob <- Problem(obj, constraints)
   result <- solve(prob)
