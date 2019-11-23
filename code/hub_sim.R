@@ -1,23 +1,34 @@
 
-N=50
-P=100
-prop_missing = 0.5
-#source("/Users/kushaldey/Documents/Robocov/code/simulation_models.R")
 
-library(CorShrink)
+#################################   Hub correlation simulations   ########################################
+
+options(echo=TRUE) # if you want see commands in output file
+args <- commandArgs(trailingOnly = TRUE)
+print(args)
+N <- as.numeric(toString(args[1]))
+P <- as.numeric(toString(args[2]))
+prop_missing <- as.numeric(toString(args[3]))
+
+
+
 library(glasso)
 library(corpcor)
 library(Matrix)
 library(psych)
-
+library(CVXR)
+library(Robocov)
+library(CorShrink)
+library(emdbook)
 
 hub_sim = function(n, p, block){
   mat <- 0.3*diag(1,block) + 0.7*rep(1,block) %*% t(rep(1, block))
   Sigma <-   bdiag(mat, mat, mat, mat, mat, mat, mat, mat, mat, mat)
   corSigma <- cov2cor(Sigma)
   data <- MASS::mvrnorm(n,rep(0,p),corSigma)
-  return(data)
+  ll = list("dat" = data, "cor" = corSigma)
+  return(ll)
 }
+corSigma = as.matrix(hub_sim(N, P, 10)$cor)
 
 nloglik = function(data, cormat){
   llik = 0
@@ -40,17 +51,20 @@ NUM_SIM=30
 ll <- vector(mode="list", length=NUM_SIM)
 
 for(nsim in 1:NUM_SIM){
-  data = hub_sim(N, P, 10)
+  data = hub_sim(N, P, 10)$dat
 
   #######################   Turn some of the entries to NA   ###################################
 
-  data_missing = apply(data, c(1,2), function(x){
-    if(runif(1,0,1) > prop_missing){
-      return(x)
+  data_missing = t(apply(data, 1, function(x){
+    if(prop_missing > 0){
+      rand = sample(1:length(x), floor(prop_missing*length(x)), replace = F)
+      y = x
+      y[rand] = NA
+      return(y)
     }else{
-      return(NA)
-    }
-  })
+      return(x)
+    }}))
+
 
 
   standard_cor = cor(data_missing, use = "pairwise.complete.obs")
@@ -59,7 +73,7 @@ for(nsim in 1:NUM_SIM){
   corshrink_cor = cov2cor(cov_sample_ML$cor)
   robocov_box_cor = Robocov_box(data_with_missing = data_missing)
 
-  alpha_vec = c(1e-04, 1e-03, 1e-02, 0.1, 0.5, 1, 5, 10, 50, 100)
+  alpha_vec = c(1e-02, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100)
   nlik_list = rep(0, length(alpha_vec))
   for(m in 1:length(alpha_vec)){
     temp_cor = Robocov_box_slack(data_missing, alpha=alpha_vec[m])
@@ -70,7 +84,7 @@ for(nsim in 1:NUM_SIM){
   robocov_box_slack_cor =  Robocov_box_slack(data_missing, alpha=final_alpha)
 
 
-  alpha_vec = c(1e-04, 1e-03, 1e-02, 0.1, 0.5, 1, 5, 10, 50, 100)
+  alpha_vec = c(1e-02, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100)
   nlik_list = rep(0, length(alpha_vec))
   for(m in 1:length(alpha_vec)){
     temp_cor = Robocov_local(data_missing, alpha=alpha_vec[m])
@@ -126,10 +140,8 @@ for(nsim in 1:NUM_SIM){
   cat("We are at simulation trial:", nsim, "\n")
 }
 
-
-
-
-
+save(df, file = paste0("/n/groups/price/kushal/Robocov/output/robocov_sim_hub_n_",
+     N, "_p_", P, "_prop_", prop_missing, ".rda"))
 
 
 

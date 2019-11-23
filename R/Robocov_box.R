@@ -2,7 +2,10 @@
 #' @description A robust estimation of correlation matrix for data with missing entries using box
 #' constraint on the Fisher z-score values.
 #'
-#' @param data_with_missing Samples by features data matrix. May contain missing entries (NA) values.
+#' @param data_with_missing Samples by features data matrix. May contain missing entries
+#'        (NA) values.
+#' @param loss Specify if we minimize L-1 (`lasso`), L-2 (`ridge`) or elastic-net (`elasticnet`)
+#'             loss functions.
 #'
 #' @examples
 #' data("sample_by_feature_data")
@@ -19,7 +22,8 @@
 #' @importFrom stats cor sd cov2cor
 #' @export
 
-Robocov_box <- function(data_with_missing){
+Robocov_box <- function(data_with_missing,
+                        loss = c("lasso", "ridge", "elasticnet")){
 
   ##################  Building matrix of common samples for pairwise comparisons  ####################
 
@@ -52,10 +56,20 @@ Robocov_box <- function(data_with_missing){
   constrained_overall_bound = apply(overall_bound, c(1,2), function(x) return(min(2,x)))
   diag(constrained_overall_bound) = 0
 
-  ###############  Convec optimization  ######################
+  ###############  Convex optimization  ######################
   library(CVXR)
+
   R <- Semidef(dim(pairwise_cor)[1])
-  obj <- Minimize(sum(abs(R)))
+  if(loss == "lasso"){
+    obj <- Minimize(p_norm(R, 1))
+  }else if (loss == "ridge"){
+    obj <- Minimize(p_norm(R, 2))
+  }else if (loss == "elasticnet"){
+    obj <- Minimize(0.5*p_norm(R, 2) + 0.5*p_norm(R,1))
+  }else{
+    stop("loss must be one of lasso, ridge or elasticnet.")
+  }
+
   constraints = list(diag(R) == 1, R <= pairwise_cor + constrained_overall_bound,
                      R >= pairwise_cor - constrained_overall_bound)
   prob <- Problem(obj, constraints)

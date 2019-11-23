@@ -1,65 +1,27 @@
 
-N=50
-P=100
-prop_missing = 0.5
-#source("/Users/kushaldey/Documents/Robocov/code/simulation_models.R")
-
-library(CorShrink)
-library(glasso)
-library(corpcor)
-library(Matrix)
-library(psych)
-
-
-hub_sim = function(n, p, block){
-  mat <- 0.3*diag(1,block) + 0.7*rep(1,block) %*% t(rep(1, block))
-  Sigma <-   bdiag(mat, mat, mat, mat, mat, mat, mat, mat, mat, mat)
-  corSigma <- cov2cor(Sigma)
-  data <- MASS::mvrnorm(n,rep(0,p),corSigma)
-  return(data)
-}
-
-nloglik = function(data, cormat){
-  llik = 0
-  for(m in 1:nrow(data)){
-    idx = which(!is.na(data[m,]))
-    if(length(idx) > 2){
-      llik = llik + emdbook::dmvnorm(data[m, idx], rep(0, length(idx)), cormat[idx, idx], log = T)
-    }
-  }
-  return(-llik)
-}
-
-angle_norm = function(S, Sigma){
-  dist = 1 - (tr(as.matrix(cov2cor(S)%*%cov2cor(Sigma))))/(norm(cov2cor(S), type = "F")* norm(Sigma, type = "F"))
-  return(dist)
-}
-
+data("sample_by_feature_data")
 
 NUM_SIM=30
 ll <- vector(mode="list", length=NUM_SIM)
 
 for(nsim in 1:NUM_SIM){
-  data = hub_sim(N, P, 10)
+  rand = sample(1:nrow(sample_by_feature_data),
+                floor(0.5*nrow(sample_by_feature_data)), replace = F)
+  train_data = sample_by_feature_data[rand, ]
+  test_data = sample_by_feature_data[-rand, ]
 
-  #######################   Turn some of the entries to NA   ###################################
-
-  data_missing = apply(data, c(1,2), function(x){
-    if(runif(1,0,1) > prop_missing){
-      return(x)
-    }else{
-      return(NA)
-    }
-  })
-
+  data_missing = train_data
+  corSigma = as.matrix(cor(test_data, use = "pairwise.complete.obs"))
+  corSigma[which(is.na(corSigma))] = 0
 
   standard_cor = cor(data_missing, use = "pairwise.complete.obs")
+  standard_cor[which(is.na(standard_cor))] = 0
   cov_sample_ML <-  CorShrinkData(data_missing, sd_boot = FALSE,
                                   ash.control = list())
   corshrink_cor = cov2cor(cov_sample_ML$cor)
   robocov_box_cor = Robocov_box(data_with_missing = data_missing)
 
-  alpha_vec = c(1e-04, 1e-03, 1e-02, 0.1, 0.5, 1, 5, 10, 50, 100)
+  alpha_vec = c(1e-03, 1e-02, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100)
   nlik_list = rep(0, length(alpha_vec))
   for(m in 1:length(alpha_vec)){
     temp_cor = Robocov_box_slack(data_missing, alpha=alpha_vec[m])
@@ -70,7 +32,7 @@ for(nsim in 1:NUM_SIM){
   robocov_box_slack_cor =  Robocov_box_slack(data_missing, alpha=final_alpha)
 
 
-  alpha_vec = c(1e-04, 1e-03, 1e-02, 0.1, 0.5, 1, 5, 10, 50, 100)
+  alpha_vec = c(1e-03, 1e-02, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100)
   nlik_list = rep(0, length(alpha_vec))
   for(m in 1:length(alpha_vec)){
     temp_cor = Robocov_local(data_missing, alpha=alpha_vec[m])
@@ -79,8 +41,6 @@ for(nsim in 1:NUM_SIM){
   }
   final_alpha = alpha_vec[which.min(nlik_list)]
   robocov_local_cor =  Robocov_local(data_missing, alpha=final_alpha)
-
-
 
 
   df = rbind(c(norm(robocov_box_cor - corSigma, type = "F"),
@@ -126,11 +86,12 @@ for(nsim in 1:NUM_SIM){
   cat("We are at simulation trial:", nsim, "\n")
 }
 
+save(df, file = paste0("/Users/kushaldey/Documents/Robocov-pages/output/gtex_predictive_robocov.rda"))
 
+arr = array(0, c(5, 5, 30))
+for(m in 1:30){
+  arr[,,m] = ll[[m]]
+}
 
-
-
-
-
-
-
+mean_metric = apply(arr, c(1,2), function(x) return(mean(x[!is.na(x)])))
+sd_metric = apply(arr, c(1,2), function(x) return(sd(x[!is.na(x)])))

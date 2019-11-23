@@ -5,6 +5,8 @@
 #'
 #' @param data_with_missing Samples by features data matrix. May contain missing entries (NA) values.
 #' @param alpha The tuning parameter for the L-1 shrinkage of the slack variables.
+#' @param loss Specify if we minimize L-1 (`lasso`), L-2 (`ridge`) or elastic-net (`elasticnet`)
+#'             loss functions.
 #' @examples
 #' data("sample_by_feature_data")
 #' out = Robocov_box_slack(sample_by_feature_data, alpha = 1)
@@ -20,7 +22,9 @@
 #' @importFrom stats cor sd cov2cor
 #' @export
 
-Robocov_box_slack <- function(data_with_missing, alpha = 1){
+Robocov_box_slack <- function(data_with_missing,
+                              alpha = 1,
+                              loss = c("lasso", "ridge", "elasticnet")){
 
   ##################  Building matrix of common samples for pairwise comparisons  ####################
 
@@ -58,7 +62,17 @@ Robocov_box_slack <- function(data_with_missing, alpha = 1){
   library(CVXR)
   R <- Semidef(dim(pairwise_cor)[1])
   slack <- Variable(dim(pairwise_cor)[1], dim(pairwise_cor)[1])
-  obj <- Minimize(p_norm(R, 1) + alpha*p_norm(slack, 1))
+
+  if(loss == "lasso"){
+    obj <- Minimize(p_norm(R, 1) + alpha*p_norm(slack, 1))
+  }else if (loss == "ridge"){
+    obj <- Minimize(p_norm(R, 2) + alpha*p_norm(slack, 1))
+  }else if (loss == "elasticnet"){
+    obj <- Minimize(0.5*p_norm(R, 2) + 0.5*p_norm(R,1) + alpha*p_norm(slack, 1))
+  }else{
+    stop("loss must be one of lasso, ridge or elasticnet.")
+  }
+
   constraints = list(diag(R) == 1, diag(slack) == 0, R <= pairwise_cor + constrained_overall_bound + slack,
                      R >= pairwise_cor - constrained_overall_bound - slack)
   prob <- Problem(obj, constraints)
