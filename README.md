@@ -62,6 +62,11 @@ robocov = Robocov_cor(sample_by_feature_data, loss = "lasso")
 
 Analogously, you can estimate a sparse partial correlation matrix to better understand the causal structure.
 
+```
+probocov = Robocov_precision(sample_by_feature_data, alpha = 0.1)
+```
+where alpha is the tuning parameter.
+
 <embed src="vignettes/probocov.pdf" width="800px" height="2100px" />
 
 Observe that Robocov correlation and partial correlation estimators are visually more interpretable and less cluttered than the standard estimator. We also show in our manuscript that our method has better false positivity rate than standard approach and CorShrink.
