@@ -19,7 +19,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library("knitr")
 library(kableExtra)
 opts_chunk$set(tidy=FALSE,tidy.opts=list(width.cutoff=30),dev="png",
-               fig.width=9,fig.height=9,
+               fig.width=7,fig.height=7,
                message=FALSE, warning = FALSE)
 ```
 
@@ -68,8 +68,6 @@ corrplot::corrplot(standard, diag = TRUE,
 
 ```{r warning=F, message=F}
 robocov = Robocov_cor(sample_by_feature_data)
-colnames(robocov) = colnames(standard)
-rownames(robocov) = rownames(standard)
 corrplot::corrplot(robocov, diag = TRUE,
                    col = colorRampPalette(c("lightblue4", "lightblue2", "white", "indianred1", "indianred3"))(200),
                    tl.pos = "ld", tl.cex = 0.5, tl.col = "black",
@@ -82,8 +80,6 @@ corrplot::corrplot(robocov, diag = TRUE,
 
 ```{r warning=F, message=F}
 probocov = Robocov_precision(sample_by_feature_data, alpha = 0.1)
-colnames(probocov) = colnames(standard)
-rownames(probocov) = rownames(standard)
 corrplot::corrplot(probocov, diag = TRUE,
                    col = colorRampPalette(c("lightblue4", "lightblue2", "white", "indianred1", "indianred3"))(200),
                    tl.pos = "ld", tl.cex = 0.5, tl.col = "black",
