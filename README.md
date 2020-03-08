@@ -72,5 +72,10 @@ where alpha is the tuning parameter.
 Observe that Robocov correlation and partial correlation estimators are visually more interpretable and less cluttered than the standard estimator. We also show in our manuscript that our method has better false positivity rate than standard approach and CorShrink.
 
 
+Please check the R examples for further illustrations on other additional covariance, correlation and inverse correlation functions using slack variables, quadratic data fidelity etc.
+
+
+
+
 
 
