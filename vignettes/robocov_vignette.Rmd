@@ -1,0 +1,99 @@
+---
+title: "Robocov: Sparse and robust estimation of covariance, correlation and partial correlation estimators when data has missing entries"
+shorttitle: "Robocov"
+author: 
+- name: Kushal K Dey
+  affiliation:
+      - Department of Epidemiology and Biostatistics, Harvard T.H. Chan School of Public Health
+- name: Rahul Mazumder
+  affiliation:
+      - MIT Sloan School of Management
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r knitr, echo=FALSE, results="hide", warning=F, message=F}
+library("knitr")
+library(kableExtra)
+opts_chunk$set(tidy=FALSE,tidy.opts=list(width.cutoff=30),dev="png",
+               fig.width=9,fig.height=9,
+               message=FALSE, warning = FALSE)
+```
+
+## Installation
+
+You can install the R package Robocov from Github.
+
+```{r eval=FALSE, echo=TRUE, warning=F, message=F}
+install.packages("CVXR")
+install_github('kkdey/Robocov')
+```
+
+Next load the package into R.
+
+```{r}
+library(Robocov)
+```
+
+```{r echo=FALSE, eval=TRUE}
+library(corrplot)
+```
+
+## Demo Data
+
+We load an example data matrix X.
+
+```{r}
+data("sample_by_feature_data")
+dim(sample_by_feature_data) ## dimension of data matrix
+length(which(is.na(sample_by_feature_data)))/length(sample_by_feature_data) ## proportion of missing data
+```
+
+## Standard pairwise correlation estimator
+
+```{r warning=F, message=F}
+standard = cor(sample_by_feature_data, use = "pairwise.complete.obs")
+corrplot::corrplot(standard, diag = TRUE,
+                   col = colorRampPalette(c("lightblue4", "lightblue2", "white", "indianred1", "indianred3"))(200),
+                   tl.pos = "ld", tl.cex = 0.5, tl.col = "black",
+                   rect.col = "white",na.label.col = "white",
+                   method = "color", type = "lower", tl.srt=45)
+```
+
+
+## Robocov correlation estimator
+
+```{r warning=F, message=F}
+robocov = Robocov_cor(sample_by_feature_data)
+colnames(robocov) = colnames(standard)
+rownames(robocov) = rownames(standard)
+corrplot::corrplot(robocov, diag = TRUE,
+                   col = colorRampPalette(c("lightblue4", "lightblue2", "white", "indianred1", "indianred3"))(200),
+                   tl.pos = "ld", tl.cex = 0.5, tl.col = "black",
+                   rect.col = "white",na.label.col = "white",
+                   method = "color", type = "lower", tl.srt=45)
+```
+
+
+## Robocov partial correlation estimator
+
+```{r warning=F, message=F}
+probocov = Robocov_precision(sample_by_feature_data, alpha = 0.1)
+colnames(probocov) = colnames(standard)
+rownames(probocov) = rownames(standard)
+corrplot::corrplot(probocov, diag = TRUE,
+                   col = colorRampPalette(c("lightblue4", "lightblue2", "white", "indianred1", "indianred3"))(200),
+                   tl.pos = "ld", tl.cex = 0.5, tl.col = "black",
+                   rect.col = "white",na.label.col = "white",
+                   method = "color", type = "lower", tl.srt=45)
+```
+
+
+```{r}
+sessionInfo()
+```
+
+
