@@ -50,7 +50,7 @@ This data matrix has 544 samples, 53 variables and you will see a large number (
 ```
 standard = cor(sample_by_feature_data, use = "pairwise.complete.obs")
 ```
-<embed src="vignettes/standard.pdf" width="800px" height="2100px" />
+<img src="vignettes/standard.png" width="1000px" height="1100px" />
 
 Alternatively, you can use the Robocov correlation estimator.
 
@@ -58,7 +58,7 @@ Alternatively, you can use the Robocov correlation estimator.
 robocov = Robocov_cor(sample_by_feature_data, loss = "lasso")
 ```
 
-<embed src="vignettes/robocov.pdf" width="800px" height="2100px" />
+<img src="vignettes/robocov.png" width="1000px" height="1100px" />
 
 Analogously, you can estimate a sparse partial correlation matrix to better understand the causal structure.
 
@@ -67,8 +67,7 @@ probocov = Robocov_precision(sample_by_feature_data, alpha = 0.1)
 ```
 where alpha is the tuning parameter.
 
-<embed src="vignettes/probocov.pdf" width="800px" height="2100px" />
-![](vignettes/probocov.pdf)
+<img src="vignettes/probocov.png" width="1000px" height="1100px" />
 
 Observe that Robocov correlation and partial correlation estimators are visually more interpretable and less cluttered than the standard estimator. We also show in our manuscript that our method has better false positivity rate than standard approach and CorShrink.
 
