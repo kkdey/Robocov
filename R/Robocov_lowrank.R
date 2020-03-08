@@ -92,6 +92,18 @@ Robocov_lowrank <- function(data_with_missing,
     Sigma = Sigma + diag(sigma2, nrow(Sigma))
   }
   R = cov2cor(Sigma)
+
+  if(!is.null(colnames(data_with_missing))){
+    rownames(R) = colnames(data_with_missing)
+    colnames(R) = colnames(data_with_missing)
+  }
+
+  if(!is.null(colnames(data_with_missing))){
+    rownames(Sigma) = colnames(data_with_missing)
+    colnames(Sigma) = colnames(data_with_missing)
+  }
+
+
   ll = list("estS" = Sigma, "estR" = R,  "obj" = objective, "noise_var" = sigma2)
   return(ll)
 }

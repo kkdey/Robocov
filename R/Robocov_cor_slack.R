@@ -82,5 +82,11 @@ Robocov_cor_slack <- function(data_with_missing,
   result <- solve(prob)
   R_hat = as.matrix(result$getValue(R))
   R_hat = cov2cor(R_hat)
+
+  if(!is.null(colnames(data_with_missing))){
+    rownames(R_hat) = colnames(data_with_missing)
+    colnames(R_hat) = colnames(data_with_missing)
+  }
+
   return(R_hat)
 }

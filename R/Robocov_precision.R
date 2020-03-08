@@ -91,6 +91,13 @@ Robocov_precision <- function(data_with_missing,
   Omega_hat[abs(Omega_hat) <= 1e-4] <- 0
   PR_hat = -cov2cor(as.matrix(Omega_hat))
   diag(PR_hat) = 1
+
+  if(!is.null(colnames(data_with_missing))){
+    rownames(PR_hat) = colnames(data_with_missing)
+    colnames(PR_hat) = colnames(data_with_missing)
+  }
+
+
   return(PR_hat)
 }
 

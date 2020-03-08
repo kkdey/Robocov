@@ -89,5 +89,11 @@ Robocov_quad <- function(data_with_missing,
   prob <- Problem(obj, constraints)
   result <- solve(prob)
   R_hat = cov2cor(as.matrix(result$getValue(R)))
+
+  if(!is.null(colnames(data_with_missing))){
+    rownames(R_hat) = colnames(data_with_missing)
+    colnames(R_hat) = colnames(data_with_missing)
+  }
+
   return(R_hat)
 }

@@ -93,5 +93,11 @@ Robocov_cov <- function(data_with_missing,
   prob <- Problem(obj, constraints)
   result <- solve(prob)
   Sigma_hat = as.matrix(result$getValue(Sigma))
+
+  if(!is.null(colnames(data_with_missing))){
+    rownames(Sigma_hat) = colnames(data_with_missing)
+    colnames(Sigma_hat) = colnames(data_with_missing)
+  }
+
   return(Sigma_hat)
 }
