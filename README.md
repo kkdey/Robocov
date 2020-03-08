@@ -43,8 +43,6 @@ Lets start by loading an example samples by features data matrix (X)
 
 ```
 data("sample_by_feature_data")
-dim(sample_by_feature_data) ## dimension of data matrix
-length(which(is.na(sample_by_feature_data)))/length(sample_by_feature_data) ## proportion of missing data
 ```
 
 This data matrix has 544 samples, 53 variables and you will see a large number (~70%) of missing entries (NA) in this matrix. One can either use the standard sample correlation matrix.
@@ -74,7 +72,10 @@ where alpha is the tuning parameter.
 Observe that Robocov correlation and partial correlation estimators are visually more interpretable and less cluttered than the standard estimator. We also show in our manuscript that our method has better false positivity rate than standard approach and CorShrink.
 
 
-Please check the R examples for further illustrations on other additional covariance, correlation and inverse correlation functions using slack variables, quadratic data fidelity etc.
+Check vignette file [vignettes/robocov_vignette.pdf] for detailed illustration of the demo above along with 
+visualization details.
+Check R examples for additional functions relating to covariance, correlation and inverse correlation functions 
+using slack variables, quadratic data fidelity etc.
 
 
 
