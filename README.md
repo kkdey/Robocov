@@ -43,6 +43,8 @@ Lets start by loading an example samples by features data matrix (X)
 
 ```
 data("sample_by_feature_data")
+dim(sample_by_feature_data) ## dimension of data matrix
+length(which(is.na(sample_by_feature_data)))/length(sample_by_feature_data) ## proportion of missing data
 ```
 
 This data matrix has 544 samples, 53 variables and you will see a large number (~70%) of missing entries (NA) in this matrix. One can either use the standard sample correlation matrix.
