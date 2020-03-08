@@ -1,6 +1,7 @@
-#' @title Robust correlation estimation using box constraints on Fisher Z-scores
+#' @title Robocov correlation estimation using box constraints on Fisher Z-scores
 #' @description A robust estimation of correlation matrix for data with missing entries using box
-#' constraint on the Fisher z-score values.
+#' constraint on the difference between the population correlation matrix and pairwise sample correlation
+#' matrix.
 #'
 #' @param data_with_missing Samples by features data matrix. May contain missing entries
 #'        (NA) values.
@@ -9,7 +10,7 @@
 #'
 #' @examples
 #' data("sample_by_feature_data")
-#' out = Robocov_box(sample_by_feature_data)
+#' out = Robocov_cor(sample_by_feature_data)
 #' corrplot::corrplot(as.matrix(out), diag = FALSE,
 #'         col = colorRampPalette(c("blue", "white", "red"))(200),
 #'         tl.pos = "td", tl.cex = 0.4, tl.col = "black",
@@ -22,10 +23,17 @@
 #' @importFrom stats cor sd cov2cor
 #' @export
 
-Robocov_box <- function(data_with_missing,
+Robocov_cor <- function(data_with_missing,
                         loss = c("lasso", "ridge", "elasticnet")){
 
+  if(length(loss) == 3){
+    loss = "lasso"   ## L1 norm penalty as default to induce sparsity
+  }
   ##################  Building matrix of common samples for pairwise comparisons  ####################
+
+  ##  B: binary matrix B_{N x P} similar to X_{N x P}
+  ##  B^{T}B (P x P ) matrix with each entry equal to n_{ij}
+  ##  n_{ii} = 0 y construction
 
   binary_indicator = matrix(1, nrow(data_with_missing), ncol(data_with_missing))
   binary_indicator[is.na(data_with_missing)]= 0
@@ -33,6 +41,8 @@ Robocov_box <- function(data_with_missing,
   diag(common_samples) = 0
 
   #################  Pairwise correlations computation  ###############################
+
+  ## C = cor(X) pairwisem sample corr matrix:
 
   pairwise_cor = cor(data_with_missing, use = "pairwise.complete.obs")
   pairwise_cor[is.na(pairwise_cor)] = 0
@@ -43,10 +53,14 @@ Robocov_box <- function(data_with_missing,
 
   ################# Computing sample Fisher Z scores   ###########################
 
+  ## Compute Z = 0.5 log ((1+r)/(1-r))
+
   pairwise_zscores = apply(pairwise_cor, c(1,2), function(x) return (0.5*log((1+x)/(1-x))))
   diag(pairwise_zscores) = 0
 
   ###############  Bounds on the correlations  ####################################
+
+  ## Compute the C_{ij} constant upper bound
 
   bound1 = 12*exp(2*pairwise_zscores)/((exp(2*pairwise_zscores) + 1)^2)
   zscores_sd = sqrt(1/(common_samples - 1) + 2/(common_samples - 1)^2)
@@ -57,7 +71,7 @@ Robocov_box <- function(data_with_missing,
   diag(constrained_overall_bound) = 0
 
   ###############  Convex optimization  ######################
-  library(CVXR)
+  #library(CVXR)
 
   R <- Semidef(dim(pairwise_cor)[1])
   if(loss == "lasso"){
@@ -70,7 +84,8 @@ Robocov_box <- function(data_with_missing,
     stop("loss must be one of lasso, ridge or elasticnet.")
   }
 
-  constraints = list(diag(R) == 1, R <= pairwise_cor + constrained_overall_bound,
+  constraints = list(diag(R) == 1,
+                     R <= pairwise_cor + constrained_overall_bound,
                      R >= pairwise_cor - constrained_overall_bound)
   prob <- Problem(obj, constraints)
   result <- solve(prob)

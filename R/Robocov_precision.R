@@ -1,6 +1,6 @@
-#' @title Robust partial correlation estimation using Box constraint on Fisher Z-scores
-#' @description A robust estimation of partial correlation matrix for data with missing entries using box
-#' constraint on Fisher Z-scores.
+#' @title Robocov partial correlation estimation using robust optimization of GLASSO penalty
+#' @description A robust estimation of partial correlation matrix for data with missing entries using a robust
+#' optimization version of the GLASSO method taking account of the missing entries in the data matrix.
 #'
 #' @param data_with_missing The samples by features data matrix. May contain NA values.
 #' @param alpha The tuning parameter for L-1 penalty.
@@ -25,12 +25,16 @@ Robocov_precision <- function(data_with_missing,
                               alpha,
                               lambda = 1){
 
-  library(CVXR)
+  #library(CVXR)
   if(missing(alpha)){
     stop("The value of alpha as in shrinkage intensity not provided, please specify alpha")
   }
 
   ##################  Building matrix of common samples for pairwise comparisons  ####################
+
+  ##  B: binary matrix B_{N x P} similar to X_{N x P}
+  ##  B^{T}B (P x P ) matrix with each entry equal to n_{ij}
+  ##  n_{ii} = 0 y construction
 
   binary_indicator = matrix(1, nrow(data_with_missing), ncol(data_with_missing))
   binary_indicator[is.na(data_with_missing)]= 0
@@ -39,6 +43,8 @@ Robocov_precision <- function(data_with_missing,
 
 
   ###############  compute pairwise covariance/correlation matrix   #######################
+
+  ## C = cov(X) pairwise sample cov. matrix:
 
   pairwise_cov = cov(data_with_missing, use = "pairwise.complete.obs")
   sigma_vals = sqrt(diag(pairwise_cov))
@@ -52,10 +58,14 @@ Robocov_precision <- function(data_with_missing,
 
   ###############  Compute pairwise Fisher Z-scores   ##########################
 
+  ## Compute Z = 0.5 log ((1+r)/(1-r))
+
   pairwise_zscores = apply(pairwise_cor, c(1,2), function(x) return (0.5*log((1+x)/(1-x))))
   diag(pairwise_zscores) = 0
 
   ################  Bound on the covariances   ##########################
+
+  ## Compute the D_{ij} constant upper bound
 
   bound1 = 12*exp(2*pairwise_zscores)/((exp(2*pairwise_zscores) + 1)^2)
   zscores_sd_1 = sqrt(1/(common_samples - 1) + 2/(common_samples - 1)^2)
@@ -68,6 +78,8 @@ Robocov_precision <- function(data_with_missing,
   delta = apply(abs(overall_bound_1) + abs(overall_bound_2), c(1,2), function(x) return(pmin(2,x)))
   diag(delta) = 0
   delta_cov = diag(sigma_vals) %*% delta %*% diag(sigma_vals)
+
+  ###############  Robust optimization framework   ######################
 
   Omega <- Semidef(dim(common_samples)[1])
   scale <- abs(alpha) + lambda*delta_cov

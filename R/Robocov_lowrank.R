@@ -1,5 +1,6 @@
-#' @title Robust covariance estimation for low rank + noise data
-#' @description Performs a nuclear norm penalization of the coavriance matrix for low-rank plus noise data .
+#' @title Robocov correlation matrix estimation of data with low rank + noise structure.
+#' @description Performs a nuclear norm penalization of the correlation matrix with low-rank + noise structure
+#' when the data has missing entries.
 #'
 #' @param data_with_missing The samples by features data matrix. May contain NA values.
 #' @param alpha The tuning parameter for the gradient descent(GD) iteration update.
@@ -11,7 +12,7 @@
 #'
 #' @examples
 #' data("sample_by_feature_data")
-#' out = CorShrinkDataNuclear(sample_by_feature_data, stepsize = 1, max_iter = 100)
+#' out = Robocov_lowrank(sample_by_feature_data, stepsize = 1, max_iter = 100)
 #' corrplot::corrplot(as.matrix(out$estR), diag = FALSE,
 #'         col = colorRampPalette(c("blue", "white", "red"))(200),
 #'         tl.pos = "td", tl.cex = 0.4, tl.col = "black",

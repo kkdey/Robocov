@@ -2,7 +2,7 @@
 % Please edit documentation in R/Robocov_precision.R
 \name{Robocov_precision}
 \alias{Robocov_precision}
-\title{Robust partial correlation estimation using Box constraint on Fisher Z-scores}
+\title{Robocov partial correlation estimation using robust optimization of GLASSO penalty}
 \usage{
 Robocov_precision(data_with_missing, alpha, lambda = 1)
 }
@@ -14,8 +14,8 @@ Robocov_precision(data_with_missing, alpha, lambda = 1)
 \item{lambda}{The weight of the constraint in the shrinkage. Default lambda taken to be 1.}
 }
 \description{
-A robust estimation of partial correlation matrix for data with missing entries using box
-constraint on Fisher Z-scores.
+A robust estimation of partial correlation matrix for data with missing entries using a robust
+optimization version of the GLASSO method taking account of the missing entries in the data matrix.
 }
 \examples{
 data("sample_by_feature_data")

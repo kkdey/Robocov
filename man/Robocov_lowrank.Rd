@@ -2,7 +2,7 @@
 % Please edit documentation in R/Robocov_lowrank.R
 \name{Robocov_lowrank}
 \alias{Robocov_lowrank}
-\title{Robust covariance estimation for low rank + noise data}
+\title{Robocov correlation matrix estimation of data with low rank + noise structure.}
 \usage{
 Robocov_lowrank(data_with_missing, alpha = 0.01, stepsize = 1,
   max_iter = 1000, tol = 1e-04, verbose = TRUE)
@@ -22,11 +22,12 @@ Robocov_lowrank(data_with_missing, alpha = 0.01, stepsize = 1,
 if the objective is decreasing over iterations (as it should be) or not.}
 }
 \description{
-Performs a nuclear norm penalization of the coavriance matrix for low-rank plus noise data .
+Performs a nuclear norm penalization of the correlation matrix with low-rank + noise structure
+when the data has missing entries.
 }
 \examples{
 data("sample_by_feature_data")
-out = CorShrinkDataNuclear(sample_by_feature_data, stepsize = 1, max_iter = 100)
+out = Robocov_lowrank(sample_by_feature_data, stepsize = 1, max_iter = 100)
 corrplot::corrplot(as.matrix(out$estR), diag = FALSE,
         col = colorRampPalette(c("blue", "white", "red"))(200),
         tl.pos = "td", tl.cex = 0.4, tl.col = "black",
