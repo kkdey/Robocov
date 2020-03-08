@@ -2,8 +2,9 @@
 
 An R package for Robust Estimation of covariance and precision matrices when the data has missing entries.
 
-Authors: [Kushal K Dey](http://kkdey.github.io/) and [Rahul Mazumder](http://www.mit.edu/~rahulmaz/)
-Contact: kdey@hsph.harvard.edu
+**Authors**: [Kushal K Dey](http://kkdey.github.io/) and [Rahul Mazumder](http://www.mit.edu/~rahulmaz/)
+
+**Contact**: kdey@hsph.harvard.edu
 
 ## How to cite
 
