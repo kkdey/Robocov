@@ -67,15 +67,15 @@ Robocov_precision <- function(data_with_missing,
 
   ## Compute the D_{ij} constant upper bound
 
-  bound1 = 12*exp(2*pairwise_zscores)/((exp(2*pairwise_zscores) + 1)^2)
+  bound1 = 4*3.3*exp(2*pairwise_zscores)/((exp(2*pairwise_zscores) + 1)^2)
   zscores_sd_1 = sqrt(1/(common_samples - 1) + 2/(common_samples - 1)^2)
-  overall_bound_1 = bound1*zscores_sd_1 + zscores_sd_1^2*2*sqrt(3)
+  overall_bound_1 = bound1*zscores_sd_1 + zscores_sd_1^2*4.2
 
   common_samples_2 = matrix(dim(data_with_missing)[1], dim(common_samples)[1], dim(common_samples)[2])
   zscores_sd_2 = sqrt(1/(common_samples_2 - 1) + 2/(common_samples_2 - 1)^2)
-  overall_bound_2 = bound1*zscores_sd_2 + zscores_sd_2^2*2*sqrt(3)
+  overall_bound_2 = bound1*zscores_sd_2 + zscores_sd_2^2*4.2
 
-  delta = apply(abs(overall_bound_1) + abs(overall_bound_2), c(1,2), function(x) return(pmin(2,x)))
+  delta = apply(abs(overall_bound_1) + abs(overall_bound_2) +3.3*zscores_sd_2, c(1,2), function(x) return(pmin(2,x)))
   diag(delta) = 0
   delta_cov = diag(sigma_vals) %*% delta %*% diag(sigma_vals)
 

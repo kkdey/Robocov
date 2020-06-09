@@ -65,10 +65,10 @@ Robocov_cov <- function(data_with_missing,
 
   ## Compute the C_{ij} constant upper bound
 
-  bound1 = 12*exp(2*pairwise_zscores)/((exp(2*pairwise_zscores) + 1)^2)
+  bound1 = 4*3.3*exp(2*pairwise_zscores)/((exp(2*pairwise_zscores) + 1)^2)
   zscores_sd = sqrt(1/(common_samples - 1) + 2/(common_samples - 1)^2)
   bound2 = bound1*zscores_sd
-  bound3 = zscores_sd^2*2*sqrt(3)
+  bound3 = zscores_sd^2*4.2
   overall_bound = bound2 + bound3
   constrained_overall_bound = apply(overall_bound, c(1,2), function(x) return(min(2,x)))
   diag(constrained_overall_bound) = 0
